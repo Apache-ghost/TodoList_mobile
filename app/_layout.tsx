@@ -1,43 +1,5 @@
-// import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-// import { useFonts } from 'expo-font';
-// import { Stack } from 'expo-router';
-// import * as SplashScreen from 'expo-splash-screen';
-// import { useEffect } from 'react';
-// import 'react-native-reanimated';
-
-// import { useColorScheme } from '@/hooks/useColorScheme';
-
-// // Prevent the splash screen from auto-hiding before asset loading is complete.
-// SplashScreen.preventAutoHideAsync();
-
-// export default function RootLayout() {
-//   const colorScheme = useColorScheme();
-//   const [loaded] = useFonts({
-//     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-//   });
-
-//   useEffect(() => {
-//     if (loaded) {
-//       SplashScreen.hideAsync();
-//     }
-//   }, [loaded]);
-
-//   if (!loaded) {
-//     return null;
-//   }
-
-//   return (
-//     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-//       <Stack>
-//         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-//         <Stack.Screen name="+not-found" />
-//       </Stack>
-//     </ThemeProvider>
-//   );
-// }
-
 import React, { useState } from "react";
-import { View, Text, FlatList, StyleSheet, Button } from "react-native";
+import { View, Text, FlatList, StyleSheet, Button, Switch } from "react-native";
 import Task from "../components/Task";
 import AddTask from "../components/AddTask";
 import EditTask from "../components/EditTask";
@@ -48,6 +10,7 @@ export default function App() {
     id: string;
     text: string;
   } | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const addTask = (text: string) => {
     setTasks([...tasks, { id: Date.now().toString(), text }]);
@@ -62,9 +25,27 @@ export default function App() {
     setSelectedTask(null);
   };
 
+  const toggleTheme = () => setIsDarkMode(!isDarkMode);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>To-Do List</Text>
+    <View
+      style={[
+        styles.container,
+        isDarkMode ? darkStyles.container : lightStyles.container,
+      ]}
+    >
+      <View style={styles.headerContainer}>
+        <Text
+          style={[
+            styles.header,
+            isDarkMode ? darkStyles.text : lightStyles.text,
+          ]}
+        >
+          To-Do List
+        </Text>
+        <Switch value={isDarkMode} onValueChange={toggleTheme} />
+      </View>
+
       <FlatList
         data={tasks}
         renderItem={({ item }) => (
@@ -72,16 +53,20 @@ export default function App() {
             text={item.text}
             onDelete={() => deleteTask(item.id)}
             onEdit={() => setSelectedTask(item)}
+            isDarkMode={isDarkMode}
           />
         )}
         keyExtractor={(item) => item.id}
       />
-      <AddTask onSubmit={addTask} />
+
+      <AddTask onSubmit={addTask} isDarkMode={isDarkMode} />
+
       {selectedTask && (
         <EditTask
           task={selectedTask}
           onSubmit={editTask}
           onCancel={() => setSelectedTask(null)}
+          isDarkMode={isDarkMode}
         />
       )}
     </View>
@@ -93,12 +78,33 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 50,
     paddingHorizontal: 20,
-    backgroundColor: "#f8f9fa",
+  },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
   },
   header: {
     fontSize: 24,
     fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
+  },
+});
+
+const lightStyles = StyleSheet.create({
+  container: {
+    backgroundColor: "#f8f9fa",
+  },
+  text: {
+    color: "#000",
+  },
+});
+
+const darkStyles = StyleSheet.create({
+  container: {
+    backgroundColor: "#121212",
+  },
+  text: {
+    color: "#fff",
   },
 });
