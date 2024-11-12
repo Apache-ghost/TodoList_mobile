@@ -37,65 +37,68 @@
 // }
 
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  Button,
-  SafeAreaView,
-} from "react-native";
+import { View, Text, FlatList, StyleSheet, Button } from "react-native";
 import Task from "../components/Task";
-import { lightTheme, darkTheme, Theme } from "../utils/theme";
+import AddTask from "../components/AddTask";
+import EditTask from "../components/EditTask";
 
-interface TaskData {
-  id: string;
-  text: string;
-}
+export default function App() {
+  const [tasks, setTasks] = useState<{ id: string; text: string }[]>([]);
+  const [selectedTask, setSelectedTask] = useState<{
+    id: string;
+    text: string;
+  } | null>(null);
 
-const App: React.FC = () => {
-  const [theme, setTheme] = useState<Theme>(lightTheme);
-  const [tasks, setTasks] = useState<TaskData[]>([
-    { id: "1", text: "Buy groceries" },
-    { id: "2", text: "Walk the dog" },
-    { id: "3", text: "Write code" },
-  ]);
+  const addTask = (text: string) => {
+    setTasks([...tasks, { id: Date.now().toString(), text }]);
+  };
 
-  const toggleTheme = () => {
-    setTheme(theme === lightTheme ? darkTheme : lightTheme);
+  const deleteTask = (id: string) => {
+    setTasks(tasks.filter((task) => task.id !== id));
+  };
+
+  const editTask = (id: string, text: string) => {
+    setTasks(tasks.map((task) => (task.id === id ? { id, text } : task)));
+    setSelectedTask(null);
   };
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.background }]}
-    >
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.text }]}>To-Do List</Text>
-        <Button title="Toggle Theme" onPress={toggleTheme} />
-      </View>
+    <View style={styles.container}>
+      <Text style={styles.header}>To-Do List</Text>
       <FlatList
         data={tasks}
-        renderItem={({ item }) => <Task text={item.text} theme={theme} />}
+        renderItem={({ item }) => (
+          <Task
+            text={item.text}
+            onDelete={() => deleteTask(item.id)}
+            onEdit={() => setSelectedTask(item)}
+          />
+        )}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 20 }}
       />
-    </SafeAreaView>
+      <AddTask onSubmit={addTask} />
+      {selectedTask && (
+        <EditTask
+          task={selectedTask}
+          onSubmit={editTask}
+          onCancel={() => setSelectedTask(null)}
+        />
+      )}
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    backgroundColor: "#f8f9fa",
   },
   header: {
-    padding: 20,
-    alignItems: "center",
-  },
-  title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 10,
+    textAlign: "center",
+    marginBottom: 20,
   },
 });
-
-export default App;

@@ -1,25 +1,24 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { Theme } from "../utils/theme";
-//"../utils/theme";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
-interface TaskProps {
+type TaskProps = {
   text: string;
-  theme: Theme;
-}
+  onDelete: () => void;
+  onEdit: () => void;
+};
 
-const Task: React.FC<TaskProps> = ({ text, theme }) => {
+const Task: React.FC<TaskProps> = ({ text, onDelete, onEdit }) => {
   return (
-    <View style={[styles.item, { backgroundColor: theme.itemBackground }]}>
-      <View style={styles.itemLeft}>
-        <View
-          style={[styles.square, { backgroundColor: theme.squareColor }]}
-        ></View>
-        <Text style={[styles.itemText, { color: theme.text }]}>{text}</Text>
+    <View style={styles.item}>
+      <Text style={styles.itemText}>{text}</Text>
+      <View style={styles.buttons}>
+        <TouchableOpacity onPress={onEdit} style={styles.editButton}>
+          <Text>Edit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
+          <Text>Delete</Text>
+        </TouchableOpacity>
       </View>
-      <View
-        style={[styles.circular, { borderColor: theme.squareColor }]}
-      ></View>
     </View>
   );
 };
@@ -28,30 +27,32 @@ const styles = StyleSheet.create({
   item: {
     padding: 15,
     borderRadius: 10,
+    backgroundColor: "#fff",
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 20,
-  },
-  itemLeft: {
-    flexDirection: "row",
     alignItems: "center",
-    flexWrap: "wrap",
-  },
-  square: {
-    width: 24,
-    height: 24,
-    opacity: 0.6,
-    borderRadius: 5,
-    marginRight: 15,
+    marginBottom: 10,
+    borderColor: "#ddd",
+    borderWidth: 1,
   },
   itemText: {
-    maxWidth: "80%",
+    flex: 1,
+    fontSize: 16,
   },
-  circular: {
-    width: 12,
-    height: 12,
-    borderWidth: 2,
+  buttons: {
+    flexDirection: "row",
+  },
+  editButton: {
+    marginRight: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: "#55BCF6",
+    borderRadius: 5,
+  },
+  deleteButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: "#FF6347",
     borderRadius: 5,
   },
 });
